@@ -1,4 +1,2 @@
 setclipboard("https://discord.gg/5KzEQKVNde")
-
-
-game.Players.LocalPlayer:Kick("Out Dated Script join https://discord.gg/5KzEQKVNde for more ")
+game:GetService("Players").LocalPlayer.kick(game:GetService("Players").LocalPlayer, "Discord link copied to clipboard join for newer script ")
