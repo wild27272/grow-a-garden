@@ -1,4 +1,4 @@
-game.Players.PlayerAdded:Connect(function(player)
-    
-    player:Kick("Out Dated script join https://discord.gg/5KzEQKVNde Versal Scripts For New Version ") 
-end)
+setclipboard("https://discord.gg/5KzEQKVNde")
+
+
+game.Players.LocalPlayer:Kick("Out Dated Script join https://discord.gg/5KzEQKVNde for more ")
