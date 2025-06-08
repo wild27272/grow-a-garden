@@ -1,0 +1,230 @@
+agent duck
+wild_27272
+Playing Roblox
+
+agent duck[CODE]
+ — 11:10
+To gay
+leonpro357[$ ͘]
+ — 11:10
+No
+agent duck[CODE]
+ — 11:10
+Not enough features
+leonpro357[$ ͘]
+ — 11:10
+its fine
+Just add the auto sell
+Auto harvest
+For both
+agent duck[CODE]
+ — 11:11
+I’ll code the auto collect while you stream then update it
+leonpro357[$ ͘]
+ — 11:11
+and then find out that egg checker
+Add to premium same for money dupe
+Then we can say media gets it free
+For a week
+Depending on how active
+leonpro357[$ ͘]
+ — 11:39
+Forwarded
+
+║𝐕𝐞𝐫𝐬𝐚𝐥-𝐒𝐜𝐫𝐢𝐩𝐭𝐬║  •  11:39
+Tf even is this
+leonpro357[$ ͘]
+ — 12:25
+update
+negro
+agent duck[CODE]
+ — 12:26
+I’ll be home at like 1:30 - 2
+leonpro357[$ ͘]
+ — 12:26
+calm
+agent duck[CODE]
+ — 13:26
+Did that kid send you the script ?
+leonpro357[$ ͘]
+ — 13:26
+not yet
+agent duck[CODE]
+ — 13:26
+If he does I’ll make it better lol
+leonpro357[$ ͘]
+ — 13:27
+Forwarded
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local collectionService = game:GetService("CollectionService")
+local players = game:GetService("Players")
+
+local localPlayer = players.LocalPlayer
+Expand
+local replicatedStorage = gameGetSe.txt
+4 KB
+agent duck[CODE]
+ — 13:27
+Poorly coded ngl
+Works tho
+leonpro357[$ ͘]
+ — 13:28
+yeah
+add to script ig
+agent duck[CODE]
+ — 13:28
+I’ll skin it
+leonpro357[$ ͘]
+ — 13:28
+could make it a premium feature maybe
+idk
+leonpro357[$ ͘]
+ — 13:28
+bet
+need the money script
+agent duck[CODE]
+ — 13:28
+That’s a bloody good idea give it a gui like I did with money dupe and you can stream it like tryina get sum good like queen bee
+agent duck[CODE]
+ — 13:29
+I was wrong it is patched my friend told me cause he had the source ;-;
+leonpro357[$ ͘]
+ — 13:29
+just have it on the gag script gui that we have
+not a sperate one
+agent duck[CODE]
+ — 13:29
+That’s what I mean
+leonpro357[$ ͘]
+ — 13:29
+bruhhhhhh
+agent duck[CODE]
+ — 13:29
+Yn
+leonpro357[$ ͘]
+ — 13:29
+ight ig
+agent duck[CODE]
+ — 13:29
+Might be able to figure sum out tho
+While you stream I’ll be in vc sendin you scripts to test
+leonpro357[$ ͘]
+ — 13:32
+Cold
+agent duck[CODE]
+ — 13:32
+Forgot you needa teach me how to set up tt live
+leonpro357[$ ͘]
+ — 13:33
+oops
+Image
+leonpro357[$ ͘]
+ — 13:33
+yeah thats easy
+agent duck[CODE]
+ — 13:33
+lol
+leonpro357[$ ͘]
+ — 13:33
+just gotta set sources to gameplay to hide ur screen and only show game
+same for like cropping it to show money and what not
+agent duck[CODE]
+ — 13:33
+What I’ll do is you start streaming then once I’ve fully done script I’ll get to work on executor
+﻿
+leonpro357
+leonpro357
+[$ ͘]
+ 
+ 
+󠁛󠀣󠀴󠀷󠀰󠀲󠀰󠀲󠀬󠀣󠁡󠁤󠀰󠁢󠀰󠁢󠁝versal lag switch
+https://versalscripts.mysellauth.com/
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local collectionService = game:GetService("CollectionService")
+local players = game:GetService("Players")
+
+local localPlayer = players.LocalPlayer
+
+local hatchFunction = getupvalue(getupvalue(getconnections(replicatedStorage.GameEvents.PetEggService.OnClientEvent)[1].Function, 1), 2)
+local eggModels = getupvalue(hatchFunction, 1)
+local eggPets = getupvalue(hatchFunction, 2)
+
+local espCache = {}
+local activeEggs = {}
+
+local function getObjectFromId(objectId)
+    for eggModel in eggModels do
+        if eggModel:GetAttribute("OBJECT_UUID") ~= objectId then continue end
+        return eggModel
+    end
+end
+
+local function CreateEspGui(object, text)
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "PetEggESP"
+    billboard.Adornee = object:FindFirstChildWhichIsA("BasePart") or object.PrimaryPart or object
+    billboard.Size = UDim2.new(0, 200, 0, 50)
+    billboard.StudsOffset = Vector3.new(0, 2.5, 0)
+    billboard.AlwaysOnTop = true
+
+    local label = Instance.new("TextLabel")
+    label.Parent = billboard
+    label.Size = UDim2.new(1, 0, 1, 0)
+    label.BackgroundTransparency = 1
+    label.Text = text
+    label.TextColor3 = Color3.new(1, 1, 1)
+    label.TextStrokeTransparency = 0
+    label.TextScaled = true
+    label.Font = Enum.Font.SourceSansBold
+
+    billboard.Parent = object
+    return billboard
+end
+
+local function UpdateEsp(objectId, petName)
+    local object = getObjectFromId(objectId)
+    if not object or not espCache[objectId] then return end
+
+    local eggName = object:GetAttribute("EggName")
+    local labelGui = espCache[objectId]
+    if labelGui and labelGui:FindFirstChildOfClass("TextLabel") then
+        labelGui.TextLabel.Text = `{eggName} | {petName}`
+    end
+end
+
+local function AddEsp(object)
+    if object:GetAttribute("OWNER") ~= localPlayer.Name then return end
+
+    local eggName = object:GetAttribute("EggName")
+    local petName = eggPets[object:GetAttribute("OBJECT_UUID")]
+    local objectId = object:GetAttribute("OBJECT_UUID")
+    if not objectId then return end
+
+    local esp = CreateEspGui(object, `{eggName} | {petName or "?"}`)
+    espCache[objectId] = esp
+    activeEggs[objectId] = object
+end
+
+local function RemoveEsp(object)
+    if object:GetAttribute("OWNER") ~= localPlayer.Name then return end
+
+    local objectId = object:GetAttribute("OBJECT_UUID")
+    if espCache[objectId] then
+        espCache[objectId]:Destroy()
+        espCache[objectId] = nil
+    end
+    activeEggs[objectId] = nil
+end
+
+for _, object in collectionService:GetTagged("PetEggServer") do
+    task.spawn(AddEsp, object)
+end
+
+collectionService:GetInstanceAddedSignal("PetEggServer"):Connect(AddEsp)
+collectionService:GetInstanceRemovedSignal("PetEggServer"):Connect(RemoveEsp)
+
+local old
+old = hookfunction(getconnections(replicatedStorage.GameEvents.EggReadyToHatch_RE.OnClientEvent)[1].Function, newcclosure(function(objectId, petName)
+    UpdateEsp(objectId, petName)
+    return old(objectId, petName)
+end))
